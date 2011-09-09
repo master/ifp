@@ -1,3 +1,4 @@
+\documentclass{article}
 %include lhs2TeX.fmt
 \begin{document}
 
