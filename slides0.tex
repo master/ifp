@@ -4,13 +4,13 @@
 \usepackage{caption}
 \usepackage{listings}
 \usepackage{relsize}
-
 \usetheme{Antibes}
 \usecolortheme{seahorse}
 \setbeamercovered{transparent}
-\captionsetup[figure]{labelformat=empty,justification=centering}
-\lstset{keywordstyle=\bfseries\emph}
-\lstset{basicstyle=\footnotesize}
+\captionsetup[figure]{labelformat=empty}
+\captionsetup[figure]{justification=centering}
+\lstset{keywordstyle=\color{blue}\bfseries}
+\lstset{basicstyle=\scriptsize}
 
 \title[Введение в функциональное программирование]{Обзор курса}
 \author{Олег Смирнов\\
@@ -41,7 +41,7 @@
 \end{frame}
 
 \begin{frame}{``Функциональщина'' глазами обычного программиста}
-  \lstinputlisting[language=Haskell]{quine.hs}
+  \lstinputlisting[language=Haskell]{lecture0/quine.hs}
 \end{frame}
 
 \begin{frame}{``Функциональщина'' глазами обычного программиста}
@@ -101,11 +101,15 @@
 \end{frame}
 
 \begin{frame}[fragile]{Изучение новой парадигмы}  
-  \begin{minipage}{0.45\linewidth}
-  \lstinputlisting[language=Java]{fact.cs}
+  \begin{minipage}[t]{0.49\linewidth}
+    \begin{center}
+      \lstinputlisting[language=Java]{lecture0/fact.cs}      
+    \end{center}
   \end{minipage}
-  \begin{minipage}{0.45\linewidth}
-  \lstinputlisting[language=Caml]{fact.fs}
+  \begin{minipage}[t]{0.49\linewidth}
+    \begin{center}
+      \lstinputlisting[language=Caml]{lecture0/fact.fs}
+    \end{center}
   \end{minipage}
 \end{frame}
 
@@ -118,7 +122,20 @@
 \end{frame}
 
 \begin{frame}{Параллелиризм}
-  MapReduce
+  \begin{figure}[h]
+    \begin{minipage}[h]{1\linewidth}
+      \begin{center}
+        \includegraphics[height=10mm]{lecture0/GoogleLabs.eps}
+        \caption{Jeffrey Dean and Sanjay Ghemawat. 2004. MapReduce: simplified data processing on large clusters. In \emph{Proceedings of the 6th conference on Symposium on Opearting Systems Design \& Implementation - Volume 6} (OSDI'04), Vol. 6. USENIX Association, Berkeley, CA, USA, 10-10.}
+      \end{center}
+    \end{minipage}
+    \begin{minipage}[h]{1\linewidth}
+      \begin{center}
+        \includegraphics[height=10mm]{lecture0/HadoopMR.eps}
+        \caption{Mike Cafarella and Doug Cutting. 2004. Building Nutch: Open Source Search. \emph{Queue 2}, 2 (April 2004), 54-61.}        
+      \end{center}
+    \end{minipage}
+  \end{figure}
 \end{frame}
 
 \begin{frame}{Цели курса}
