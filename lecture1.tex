@@ -208,9 +208,9 @@ $let~\langle var \rangle~:~\langle type \rangle~=~\langle exp \rangle$.
   type coordinate = int*int
 \end{lstlisting}
 
-После этой декларации \emph{переменная типа} $row$ в программе будет означать
-$int * int$. Общая форма декларации нового типа: $\langle tyvar \rangle~=~
-\langle type \rangle$.
+После этой декларации \emph{переменная типа} $coordinate$ в программе будет
+означать $int * int$. Общая форма декларации нового типа: $\langle tyvar
+\rangle~=~\langle type \rangle$.
 
 Нотация $int * int$ здесь означает пару из двух $int$. Её также можно записать
 как $(int, int)$.
@@ -264,9 +264,8 @@ $3 : int$ и $2 : int$ -- аксиомы.
 добавляется ключевое слово $rec$. Пример -- функция вычисления факториала:
 \begin{lstlisting}
   let rec fact n =
-    match n with
-      | 0 -> 1
-      | _ -> n * fact (n - 1);;
+    if n = 0 then 1
+    else n * fact (n - 1);;
 \end{lstlisting}
 
 \subsection{Функциональный тип}
