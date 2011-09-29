@@ -2,7 +2,7 @@
 \usepackage[utf8]{inputenc}
 \usepackage[russian]{babel}
 \usepackage[T1]{fontenc}
-\usepackage{amssymb,amsmath,graphicx}
+\usepackage{amssymb,amsmath,graphicx,indentfirst}
 \usepackage{caption}
 \usepackage{color}
 \usepackage{listings}
@@ -56,22 +56,20 @@
 высшего порядка (higher-order function):
 
 \begin{lstlisting}
-  let newton first improve isGood =
-      let rec newtonIter x = 
-          if isGood x then x
-          else newtonIter (improve x)
-      newtonIter first
+  let newton first guess enough =
+      let rec iter cur = 
+          if enough cur then cur
+          else iter (guess cur)
+      iter first
 \end{lstlisting}
 
 Теперь для вычисления квадратного корня достаточно реализовать несколько
 вспомогательных функций и передать их функции $newton$ в качестве аргументов:
 
 \begin{lstlisting}
-  let isGood x y = abs (xPrev - x) < 0.0000001
-
-  let nextApprox xPrev x = 
-
-  let firstApprox = 1
+  let isGood x y = abs (x - y*y) < 0.000001
+  let improve x y = ((x / y) + y) / 2.0
+  let sqrt x = newton 1. (improve x) (isGood x)
 \end{lstlisting}
 
 Вообще говоря, поддержка функций высшего порядка в языке означает способность
@@ -391,7 +389,7 @@ $fun~x~\rightarrow~x > 0$, а для отображения -- функция в
 
 Некоторые языки позволяют превратить любую функцию от двух аргументов
 в бинарный оператор. Фиксация левого или правого аргумента такого бинарного
-оператора называется левым и правым сечением функции соответственно.
+оператора называется левым и правым разрезом функции соответственно.
 
 \section{Бесточечный стиль}
 В бесточечном стиле программирования мы опускаем аргументы (точки применения)
@@ -415,8 +413,8 @@ $fun~x~\rightarrow~x > 0$, а для отображения -- функция в
 
 Понятие карринга было впервые введено русским математиком Шейнфинкелем в
 1924 г. при создании комбинаторной логики. Хаскелл Карри упоминал его в своих 
-работах как ``первооткрывателя''. бесточечный стиль в современном понимании
-этого слова был, впервые описан Джоном Бэкусом в его лекции ``Can programming
+работах как ``первооткрывателя''. Бесточечный стиль в современном понимании
+этого слова был впервые описан Джоном Бэкусом в его лекции ``Can programming
 be liberated from the Von Neumann style?''~\cite{Backus} прочитанной на
 церемонии вручения премии Тьюринга в 1977 году. 
 \begin{figure}[h]

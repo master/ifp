@@ -2,7 +2,7 @@
 \usepackage[utf8]{inputenc}
 \usepackage[russian]{babel}
 \usepackage[T1]{fontenc}
-\usepackage{amssymb,amsmath,graphicx}
+\usepackage{amssymb,amsmath,graphicx,indentfirst}
 \usepackage{caption}
 \usepackage{color}
 \usepackage{listings}
@@ -84,7 +84,7 @@ intToString 5 => "5"
 |-> 21
 \end{lstlisting}
 
-\subsection{Типы}
+\section{Типы}
 
 Значение $"Hello~World" + 1$ не будет вычислено потому, что оно
 \emph{некорректно типизировано} (ill-typed). В F\# каждое выражение имеет
@@ -148,7 +148,7 @@ Mathematica''~\cite{Russell}. Они предложили сопоставлят
 Аналогично C\#, базовые типы являются псевдонимами для встроенных типов .NET:
 System.Int32, System.String и т.д.
 
-\subsection{Декларации}
+\section{Декларации}
 
 Программа на F\# состоит из \emph{деклараций}. Рассмотрим декларацию
 \emph{переменных}:
@@ -217,7 +217,7 @@ $let~\langle var \rangle~:~\langle type \rangle~=~\langle exp \rangle$.
 
 Область видимости в F\# -- \emph{лексическая} (она же статическая). 
 
-\subsection{Проверка и вывод типов}
+\section{Проверка и вывод типов}
 
 F\# -- статически типизированный язык с поддержкой определения типов. Это 
 означает, что все конструкции имеют известный тип уже на этапе компиляции, а не
@@ -245,7 +245,7 @@ $3 : int$ и $2 : int$ -- аксиомы.
 ошибку компиляции, т.к. операция $+$ определена для двух $int$ или двух $float$, но
 не для $float$ и $int$.
 
-\subsection{Функции}
+\section{Функции}
 
 Как и в других языках, функция в языке F\# имеет имя, может иметь параметры и 
 принимать аргументы, а также функция имеет тело. В языке F\# функции являются
@@ -268,7 +268,7 @@ $3 : int$ и $2 : int$ -- аксиомы.
     else n * fact (n - 1);;
 \end{lstlisting}
 
-\subsection{Функциональный тип}
+\section{Функциональный тип}
 
 Тип функции определяется как $\langle type1 \rangle \rightarrow \langle type2 
 \rangle$, где $\langle type1 \rangle$ -- это тип аргумента, а $\langle type2
@@ -301,7 +301,7 @@ $3 : int$ и $2 : int$ -- аксиомы.
 Благодаря выводу типов, тип функции и типы аргументов во многих случаях могут
 быть опущены.
 
-\subsection{Применение и его порядок}
+\section{Применение и его порядок}
 
 Главная операция для функции -- это \emph{применение} -- подстановка аргументов
 в тело функции:
