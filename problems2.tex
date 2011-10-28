@@ -1,0 +1,51 @@
+\documentclass[a4paper,11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[russian]{babel}
+\usepackage[T1]{fontenc}
+\usepackage{amssymb,amsmath,graphicx,indentfirst}
+\usepackage{caption}
+\usepackage{color}
+\usepackage{listings}
+\usepackage{enumerate}
+\usepackage[unicode]{hyperref}
+
+\setlength{\parskip}{1ex plus 0.5ex minus 0.2ex}
+\captionsetup[figure]{labelformat=empty}
+\captionsetup[figure]{justification=centering}
+\lstset{keywordstyle=\color{blue}\bfseries, basicstyle=\footnotesize}
+\lstset{breaklines=true, breakatwhitespace=true}
+\lstset{extendedchars=false, language=Caml, defaultdialect=[Objective]Caml}
+
+\author{Олег Смирнов, Александр Полозов \\
+\texttt{oleg.smirnov@gmail.com}, \texttt{polozov.alex@gmail.com}}
+\date{\today}
+\title{Введение в функциональное программирование -- задачи}
+
+\begin{document}
+\section*{Модуль 3. Темы 3.1-3.4}
+\begin{enumerate}[{1-}1]
+
+\item Реализуйте катаморфизм на синтаксическом дереве, который возвращает
+  множество переменных, использованных в выражении.
+\item Разработайте алгебраический тип и свёртки для следующих задач.
+
+  \begin{enumerate}[(a)]
+  \item У нас есть дерево документа, к примеру к лекции 3.1.
+  Элементами дерева могут быть:
+
+  \begin{itemize}
+  \item параграф
+  \item картинка
+  \item ссылка
+  \item текст
+  \end{itemize}
+  В каждом параграфе может быть произвольное количество картинок,
+  подпараграфов, текста, ссылок и т.д.
+
+  Задача состоит в том, чтобы извлечь все ссылки для того, чтобы вывести
+  их в конце презентации. Напишите для этого катаморфизм.
+
+  \item Напишите катаморфизм, который удалит все картинки из документа.
+  \end{enumerate}
+\end{enumerate}
+\end{document}

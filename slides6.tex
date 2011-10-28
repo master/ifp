@@ -1,0 +1,847 @@
+\documentclass{beamer}
+\usetheme{CambridgeUS}
+\usepackage[utf8]{inputenc}
+\usepackage[russian]{babel}
+\usepackage[T1]{fontenc}
+\usepackage{amssymb,amsmath,graphicx,indentfirst}
+\usepackage{enumerate}
+\usepackage{fixltx2e}
+
+\usepackage{caption}
+\captionsetup[figure]{labelformat=empty}
+
+\usepackage{listings}
+\lstset{keywordstyle=\color{blue}\bfseries}
+\lstset{basicstyle=\scriptsize}
+\lstset{extendedchars=false, language=Caml, defaultdialect=[Objective]Caml}
+
+\author{Иван Веселов}
+\institute{Barclays Capital}
+\date{28 октября 2011 г.}
+
+\begin{document}
+
+\begin{frame}{План лекции}
+\begin{itemize}
+\item
+  Лирическое отступление: финансы и ФП
+\item
+  Свёртки на синтаксических деревьях
+\item
+  Обобщение свёрток: катаморфизмы
+\item
+  Почему ФП?
+\end{itemize}
+
+\end{frame}\begin{frame}{Barclays Capital}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics{lecture6/barclays.eps}
+\caption{}
+\end{figure}
+
+\begin{itemize}
+\item
+  Barclays Capital -- инвестиционный банк
+\item
+  Предоставляет брокерские услуги, анализ рынков и т.д.
+\item
+  Наш проект: создание формального языка для описания деривативов
+\end{itemize}
+\end{frame}\begin{frame}{Пример дериватива}
+
+\begin{itemize}
+\item
+  У Петра имеется 100 акций компании Apple
+\item
+  Цена 1 акции сегодня: \$5
+\item
+  Он может продать их сейчас или продать позже
+\item
+  Пётр любит Apple и надеется на то, что акции подорожают, но не слишком
+  уверен в этом
+\item
+  Как ему застраховаться от возможных убытков?
+\item
+  Купить у нас дериватив!
+\end{itemize}
+\end{frame}\begin{frame}{Пример дериватива}
+
+\begin{itemize}
+\item
+  Банк может заключить с Петром контракт, что
+
+  \begin{enumerate}[1.]
+  \item
+    eсли акции подешевеют -- банк выплатит разницу в цене
+  \item
+    в противном случае -- банк ничего не выплачивает
+  \end{enumerate}
+\item
+  Математически:
+
+  \texttt{max(S0 - S1, 0)}
+\item
+  Пётр может воспользоваться этим контрактом через год.
+\item
+  Таким образом, если через год цена 1 акции составит 2 доллара, Пётр
+  будет застрахован от убытков и сможет продать акции по той же цене,
+  что и в день заключения контракта.
+\item
+  Однако за эту услугу ``страховки'' Петру придётся заплатить какую-то
+  сумму, чтобы подписать такой контракт.
+\item
+  Дериватив -- это и есть контракт такого рода, зависящий от цены
+  базового актива (цены акций, валют и т.д.).
+\end{itemize}
+\end{frame}\begin{frame}{Опционы}
+
+\begin{itemize}
+\item
+  Базовые активы -- это что-то более конкретное (цена валюты раньше
+  соответствовала ``золотому запасу'', акция отражает заинтересованность
+  во владении часть компании)
+\item
+  Деривативы -- более абстрактное, это просто функция от базовых активов.
+  Цена деривативов является производной от цен активов (отсюда
+  название).
+\item
+  Дериватив, предложенный Петру, называется ``опцион''
+\item
+  Опционы могут быть сложнее (``экзотические опционы''), например:
+\item
+  Вычислить среднее значение цены за последний год и выплатить его
+\item
+  Сравнить цены нескольких различных акций и выплатить минимум
+\item
+  Выплатить взвешенное среднее цен нескольких акций
+\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Пример в коде}
+
+\begin{itemize}
+\item
+  Наш язык описывает такие контракты и выплаты по ним в виде, очень
+  похожем на язык программирования.
+\item
+  Функция для описания выплаты Петру
+\end{itemize}
+
+\begin{lstlisting}[language=Haskell]
+payout :: Market -> Double
+payout market = 
+  let s0 = observe market "28-10-2011" "AAPL"
+      s1 = observe market "28-10-2012" "AAPL"
+  in max (s0 - s1) 0
+\end{lstlisting}
+\end{frame}
+
+\begin{frame}{Описание контрактов в коде}
+
+\begin{itemize}
+\item
+  В чём преимущество описания в виде программы?
+
+  \begin{enumerate}[1.]
+  \item
+    Гораздо лучше бумажного документа со словесным описанием, который
+    может допускать неоднозначности
+  \item
+    Поскольку это программа, её можно выполнить и точно посчитать
+    выплату
+  \end{enumerate}
+\item
+  Недостатки
+
+  \begin{itemize}
+  \item
+    Выполнить можно только когда наступит дата выплаты (цены акций -
+    случайные величины)
+  \end{itemize}
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Определение стоимости опциона}
+
+\begin{itemize}
+\item
+  Однако, для того, чтобы продавать опционы нужно оценивать выплату
+  заранее.
+\item
+  Для того, чтобы оценить выплату ещё до его продажи нужно примерно
+  знать какими будут значения случайных величин.
+\item
+  Одно из решений: симуляция случайных величин методом Монте-Карло.
+
+  \begin{itemize}
+  \item
+    каждая случайная величина имеет свою модель
+  \item
+    этим занимается отдел аналитиков
+  \end{itemize}
+\item
+  Мы можем запустить 100000 раз симуляцию со случайной ценой акции,
+  распределённой согласно своей модели, для каждого раза посчитать
+  выплату, усреднить и попросить у Петра немного больше -- за сервис
+\item
+  Теоретически, никто не мешает Петру проделать это самому, чтобы
+  оценить риск, но как правило у него нет квалификации или нужных
+  инструментов
+\end{itemize}
+\end{frame}\begin{frame}{Инструменты}
+
+\begin{itemize}
+\item
+  У нас такие инструменты есть!
+\item
+  FPF. Functional Payout Framework. Написан на Haskell.
+\item
+  Включает в себя язык описания деривативов.
+\item
+  Выполняет такие функции:
+\item
+  Генерация кода для оценки выплат (pricing instructions) по контрактам
+\item
+  Генерация описаний контрактов в виде формул
+\item
+  Различные анализы контрактов
+\item
+  Многое другое
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Пример описания контракта}
+
+\begin{itemize}
+\item
+  Код скриптов представляет собой код на Haskell
+\item
+  Финансисты не очень хорошо читают Haskell, им понятнее форумы, потому
+  мы генерируем описания контрактов в TeX
+\item
+  См. отдельный слайд
+\end{itemize}
+\end{frame}\begin{frame}{Извлечение информации}
+
+\begin{itemize}
+\item
+  Важная информация, которую мы можем получить из контракта-скрипта:
+\item
+  Даты наблюдения
+\item
+  Множество базовых активов дериватива
+
+  \begin{itemize}
+  \item
+    например названия задействованных в контракте акций
+  \end{itemize}
+\item
+  Точки разрыва функции выплаты
+
+  \begin{itemize}
+  \item
+    чтобы вовремя на них реагировать
+  \end{itemize}
+\end{itemize}
+\end{frame}\begin{frame}{Как мы можем получить эту информацию?}
+
+\begin{itemize}
+\item
+  Синтаксический разбор скрипта
+\item
+  Построение синтаксического дерева
+\item
+  Анализ дерева с помощью свёрток
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Cинтаксические деревья}
+\begin{itemize}
+\item
+  \textbf{Синтаксическое дерево} -- это промежуточное представление кода
+  программы в компиляторах языков программирования.
+\item
+  В процессе проверки синтаксического разбора программы парсер строит
+  синтаксическое дерево, которое потом подвергается различным
+  манипуляциям для оптимизации, проверки типов и т.д.
+\item
+  Вспомните лабораторную по синтаксическим деревьям регулярных
+  выражений.
+\end{itemize}
+\end{frame}\begin{frame}{Свёртки для алгебраических типов данных}
+
+\begin{itemize}
+\item
+  Суть \emph{свёртки} определяется названием: она \textbf{сворачивает}
+  сложную структуру данных в некоторое значение. Так можно решить много
+  разных задач, в том числе и поставленные выше.
+\item
+  Изобразим на доске пример сложной структуры в виде дерева, где каждый
+  узел -- это конструктор.
+\item
+  Рядом изобразим дерево аналогичной структуры, только с операциями в
+  узлах. Каждому конструктору соответствует отдельная операция.
+\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Cинтаксические деревья}
+\begin{itemize}
+\item
+  Мы будем рассматривать упрощённую версию дерева из языка,
+  определённого в FPF.
+\item
+  Тип такого дерева:
+\end{itemize}
+
+\begin{lstlisting}
+type expr =
+    | Const of int
+    | Var of string
+    | Add of expr * expr
+    | Mult of expr * expr
+    | Observe of date * string
+\end{lstlisting}
+
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Примеры выражений}
+
+\begin{itemize}
+\item $observe "28-10-2011" "AAPL"$
+\end{itemize}
+\begin{lstlisting}
+  Observe(Date "28-10-2011", "AAPL")
+\end{lstlisting}
+\begin{itemize}
+\item $2 + 3$
+\end{itemize}
+\begin{lstlisting}
+  Add(Const 2, Const 3)
+\end{lstlisting}
+\begin{itemize}
+\item $s0 + s1$
+\end{itemize}
+\begin{lstlisting}
+  Add(Var "s0", Var "s1")
+\end{lstlisting}
+\begin{itemize}
+\item $0 + (1 * x))$
+\end{itemize}
+\begin{lstlisting}
+  Add(Const 0, Mult(Const 1, Var "x"))
+\end{lstlisting}
+\end{frame}
+
+\begin{frame}{Задача}
+\begin{itemize}
+\item
+  Написать функцию для расчёта выплаты, используя дерево.
+
+  \begin{itemize}
+  \item
+    на входе: синтаксическое дерево контракта (выражение)
+  \item
+    на выходе: выплата (число)
+  \end{itemize}
+\item
+  Это -- задача свёртки, по сути нам нужно свернуть дерево по неким
+  правилам в одно значение.
+\item
+  Теперь нужно определить операции, соответствующие разным конструкторам
+  типа, которые будут решать задачу.
+\end{itemize}
+\end{frame}\begin{frame}{Свёртки и конструкторы}
+
+\begin{itemize}
+\item
+  Вспомним о свёртках на списках, чтобы уяснить важный момент
+\item
+  Какие аргументы у функции свёртки для списков?
+
+  \begin{enumerate}[1.]
+  \item
+    Значение на которое мы заменяем пустой список.
+  \item
+    Функция для комбинирования элемента списка с результатом свёртки
+    хвоста списка.
+  \end{enumerate}
+\item
+  Сравните вычисление правой свёртки на списке и структуру самого
+  списка:
+\end{itemize}
+
+\begin{equation*}
+  x_1 \oplus (x_2 \oplus (x_3 \oplus (\ldots \oplus (x_n \oplus base))))
+\end{equation*}
+\begin{equation*}
+  x_1 :: (x_2 :: (x_3 :: (\ldots :: (x_n :: []))))
+\end{equation*}
+
+\begin{itemize}
+\item
+  Видно, что правая свёртка это по сути замена конструктора списка
+  \texttt{(::)} на некую операцию. При этом финальный пустой список
+  заменяется на некое значение \texttt{base}.
+\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Свёртки и конструкторы}
+
+\begin{itemize}
+\item
+  Список -- это алгебраический тип данных с двумя конструкторами
+\end{itemize}
+\begin{lstlisting}
+type 'a list =
+  | Nil
+  | Cons of 'a * ('a list)
+\end{lstlisting}
+\begin{itemize}
+\item
+  Первый аргумент \texttt{fold} соответствует пустому списку
+  (конструктор \texttt{Nil})
+\item
+  Второй аргумент соответствует голове и свёртке хвоста (конструктор
+  \texttt{Cons})
+\item
+  Важно: свёртка -- это замена конструкторов типа на заданные функции
+\item
+  Таким образом теперь нам надо заменять конструкторы дерева на некие
+  функции
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Преобразование типа данных в ``контекст''}
+\begin{itemize}
+\item
+  Можно решить данную задачу с помощью рекурсивно определённой функции.
+  Но можно сделать это более элегантно, задав простые и нерекурсивные
+  способы комбинирования значений, а всю рекурсию спрятать в оператор
+  свёртки.
+\item
+  Введём понятия ``контекста свёртки''. В контексте будут храниться уже
+  вычисленные значения предыдущих свёрток.
+\item
+  Чтобы получить тип контекста применим преобразование к типу
+  \texttt{expr}, чтобы получить новый тип данных.
+\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Преобразование}
+
+Было:
+\begin{lstlisting}
+type expr =
+    | Const of int
+    | Var of string
+    | Add of expr * expr
+    | Mult of expr * expr
+    | Observe of date * string
+\end{lstlisting}
+\begin{enumerate}[1.]
+\item
+  Вводим новый параметр типа \texttt{a}
+\item
+  Зaменяем рекурсивные вхождения expr в оригинальном типе на параметр
+  \texttt{a}
+\item
+  Переименовываем конструкторы, добавляя \texttt{Context}.
+\end{enumerate}
+Стало:
+\begin{lstlisting}
+type 'a exprContext =
+    | ConstContext of int
+    | VarContext of string
+    | AddContext of 'a * 'a
+    | MultContext of 'a * 'a
+    | ObserveContext of date * string
+\end{lstlisting}
+\end{frame}
+
+\begin{frame}{Функции на контексте}
+
+\begin{itemize}
+\item
+  Наш контекст -- типизированный, в нём могут храниться определённые
+  значения типа \texttt{а}, а именно -- промежуточные результаты.
+\item
+  Теперь определим функцию на контексте, определяющую свёртку
+\item
+  Она будет иметь тип \texttt{'a exprContext -\textgreater{} a}. Эта
+  функции будет нерекурсивной и её достаточно для того, чтобы полностью
+  определить свёртку.
+\item
+  Для нашей задачи результатом свёртки будет \texttt{int}, т.к.
+  результат вычисления выражения -- число, а именно результат определяет
+  тип \texttt{а} в контексте.
+\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Функции на контексте}
+
+\begin{itemize}
+\item
+  Таким образом, нам надо задать функцию вида
+  \texttt{'int exprContext -\textgreater{} int}
+\end{itemize}
+\begin{lstlisting}
+// eval : 'int exprContext -> int 
+let eval expr = 
+    match expr with
+    | ConstContext x        -> x
+    | VarContext s          -> 42 // lookup in env 
+    | AddContext (x, y)     -> x + y
+    | MultContext (x, y)    -> x * y
+    | ObserveContext (d, a) -> lookup d a market
+\end{lstlisting}
+\begin{itemize}
+\item
+  Здесь мы не делаем рекурсивных вызовов, а просто описываем как
+  комбинировать элементы, считая что предыдущие вызовы у нас уже
+  вычислены. Можно сказать, что эта функция знает как свернуть один
+  уровень структуры данных.
+\item
+  Изобразим на доске картинку, которая сравнит функцию на деревьях и
+  функцию на контекстах.
+\item
+  Функция \texttt{eval} нерекурсивна!
+\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Катаморфизм}
+
+\begin{itemize}
+\item
+  Как теперь ``запустить'' эту функцию, чтобы она приняла дерево и
+  выдала результат?
+\item
+  Для этого нам нужно преобразовать функцию \texttt{f}, которая
+  определяет свёртку, в реальную свёртку. То есть у нас есть определение
+  того, как свернуть один уровень дерева, и нам нужно свернуть всё
+  дерево, обладая только этой функцией и знанием о типе дерева. Это
+  делается с помощью функции такого рода:
+\end{itemize}
+\begin{lstlisting}
+// toFold : ('a exprContext -> 'a) -> expr -> 'a
+let rec toFold ctx f = 
+    match ctx with
+    | Const x        -> f (ConstContext x)
+    | Var   s        -> f (VarContext s)
+    | Add  (x, y)    -> f (AddContext (toFold f x, toFold f y))
+    | Mult (x, y)    -> f (MultContext (toFold f x, toFold f y))
+    | Observe (d, a) -> f (ObserveContext(d, a))
+\end{lstlisting}
+\end{frame}
+
+\begin{frame}{Катаморфизм}
+
+\begin{itemize}
+\item
+  Именно в этой функции ``зашита'' рекурсия, однако прелесть в том, что
+  эта функция может быть обобщена на любой рекурсивный тип данных
+  (практически любой) и её не нужно будет создавать заново.
+\item
+  Такое обобщение свёрток на алгебраические структуры данных называется
+  ``катаморфизмом''.
+\item
+  ``ката'' -- по-гречески означает ``вниз''. Однокоренное слово
+  ``катастрофа'', то есть ``разрушение''. Катаморфизм как бы дробит,
+  разрушает структуру данных, преобразовывая её в какое-то единое
+  значение.
+\item
+  Можно переименовать функцию \texttt{toFold} в \texttt{cata}
+\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Решение задачи про вычислитель}
+
+\begin{itemize}
+\item
+  Соответственно, финальная функция, которая будет решать нашу задачу
+  выглядит так:
+\end{itemize}
+\begin{lstlisting}
+// e = 2 + 3 * 4
+let e = Add(Const 2, Mult(Const 3, Const 4))
+let solve e = cata eval e
+let main = printfn "%A" (solve e)
+// output: 14
+\end{lstlisting}
+\begin{itemize}
+\item
+  Важно, что \texttt{f} -- нерекурсивна, вся рекурсия спрятана в
+  \texttt{toFold}.
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Задача оптимизации выражений}
+
+\begin{itemize}
+\item
+  Предположим нам нужно написать оптимизатор выражений.
+\item
+  К примеру у нас есть выражение \texttt{1 * (x + 0)}. Вычислить мы его
+  не можем, поскольку неизвестен \texttt{x} однако мы можем
+  оптимизировать, выбросив умножение на 1 и сложение с нулём, т.к. они
+  не меняют результат.
+\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Решение}
+
+\begin{itemize}
+\item
+  Для её решения определяем ещё одну функцию для контекста.
+\item
+  Теперь параметром \texttt{a} в контексте будет не число, а
+  \texttt{expr}, поскольку результатом нашей функции является выражение.
+\item
+  Функция будет задавать наши правила оптимизации.
+\end{itemize}
+\begin{lstlisting}
+// optimizer : expr exprContext -> expr
+let optimizer e =
+  match e with  
+    | ConstContext x           -> Const x
+    | VarContext s             -> Var s
+    | AddContext (Const 0, y)  -> y
+    | AddContext (y, Const 0)  -> y
+    | AddContext (x, y)        -> Add (x, y)
+    | MultContext (Const 1, y) -> y
+    | MultContext (y, Const 1) -> y
+    | MultContext (x, y)       -> Mult (x, y)
+    | ObserveContext (d, a)    -> Observe (d, a)
+// expr for '1 * (x + 0)'
+let e2 = Mult(Const 1, Add(Var "x", Const 0))
+let main = printfn "%A" (toFold optimizer e2)
+// output: Var "x"
+\end{lstlisting}
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Катаморфизм на списках}
+
+\begin{itemize}
+\item
+  Можно провести аналогичную операцию со введением контекста для
+  списков, чтобы показать как будет выглядеть свёртка в варианте с
+  контекстом.
+
+\begin{lstlisting}
+// type for list fold context
+type 'a listContext =
+  | NilContext
+  | ConsContext of int * 'a
+
+// function which matters (defines combination,
+// one case for one constructor)
+sumC NilContext        = 0
+sumC (ConsContext x s) = x + s
+
+// sum as catamorphism
+sum = cata sumC
+\end{lstlisting}
+\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Запись свёртки на деревьях через foldExpr}
+
+\begin{itemize}
+\item
+  Ещё один вариант определения свёрток на синтаксических деревьях:
+  написание функции, аналогичной функции fold для списков.
+\end{itemize}
+\begin{lstlisting}
+// foldExpr : (a->a->a) -> (a->a->a) -> (int->a) -> 
+// -> (string->a) -> (date->string->a) -> expr -> a
+let foldExpr add mult constf var obs e =
+    let rec go e = 
+      match e with 
+        | Add (e1, e2)   -> add (go e1) (go e2)
+        | Mult (e1, e2)  -> mult (go e1) (go e2)
+        | Const c        -> constf c
+        | Var name       -> var name
+        | Observe (d, a) -> obs d a
+    go e
+\end{lstlisting}
+\begin{itemize}
+\item
+  Здесь, как и в случае с \texttt{fold} на списках, мы задаём по одной
+  функции для каждого из конструкторов.
+\item
+  Тип функции foldExpr довольно ужасен (много сложных параметров)
+\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Ещё один пример вычислителя}
+
+Тогда вычислитель будет выглядеть так:
+
+\begin{lstlisting}
+// yet another evaluator
+let eval2 env market e =
+    let add x y  = x + y
+    let mult x y = x * y
+    let constF c = c
+    let var s    = lookup s env
+    let obs d a  = lookupMarket d a market
+    foldExpr add mult constF var obs e
+
+// e = 2 + 3 * 4
+let e = Add(Const 2, Mult(Const 3, Const 4))
+let main = printfn "%A" (eval2 emptyEnv getMarketForToday e)
+// output: 14
+\end{lstlisting}
+\end{frame}
+
+\begin{frame}{Сравнение \texttt{foldl} на списках и \texttt{cata}}
+
+\begin{itemize}
+\item
+  Зачем это нужно? В чём преимущество использования контекста перед
+  обычным использованием \texttt{foldr/foldl} для списков?
+
+  \begin{enumerate}[1.]
+  \item
+    В функции \texttt{foldr/l} каждому типу конструктора соответствовал
+    свой аргумент (базовый элемент для пустого списка, комбинирующая
+    функция -- для непустого), таким образом количество аргументов
+    соответствует количеству конструкторов. Во многих случаях это
+    неудобно, т.к. конструкторов может быть очень много (например в
+    реальном синтаксическом дереве). Использовать функции с десятками
+    аргументов непрактично: это нечитабельно, сложно поддерживать, нужно
+    менять функцию каждый раз при добавлении нового конструктора.
+  \item
+    При создании нового типа данных для него пришлось бы создавать свою
+    функцию \texttt{foldX}, которая задавала бы определённую схему
+    рекурсивной свёртки. В нашем же случае всё, что нам нужно -- это
+    задать тип данных для контекста, всё остальное может быть выведено
+    автоматически с помощью ``комбинатора неподвижной точки'' над типами
+    данных. Как именно -- будет рассмотрено в следующем семестре. Таким
+    образом, подход намного более универсальный.
+  \end{enumerate}
+\item
+  Общее достоинство обоих методов в том, что конечному пользователю
+  функций не нужно явно задавать рекурсивные функции. Гораздо проще
+  определять нерекурсивные функции, а рекурсию выполнять с помощью
+  оператора (\texttt{fold} или \texttt{cata}). Таким образом схема
+  рекурсии чётко определена и не будет содержать неожиданностей.
+\end{itemize}
+\end{frame}\begin{frame}{Barclays Capital и ФП}
+
+Почему функциональное программирование и Haskell?
+
+\begin{itemize}
+\item
+  Хорошо соответствует предметной области: выплаты по деривативам
+  представляются в виде математических функций (выходы чётко
+  соответствуют входам, нет сайд-эффектов): их можно сочетать,
+  передавать в функции высшего порядка.
+\item
+  Легко сделать поддержку функций высшего порядка в скриптах. Это
+  удобнее для скриптеров, позволяет более кратко описывать важные
+  концепции.
+\item
+  Сопоставление с образцом (pattern matching) удобно для преобразования
+  деревьев. Операции на деревьях -- одни из основных в компиляторах и
+  всяких преобразователях или генераторах кода.
+\item
+  Статическая типизация и отсутствие сайд-эффектов позволяет писать
+  ``код, в который можно верить''.
+\item
+  Более гибкий код, иногда даже слишком гибкий! Слабое связывание
+  компонентов -- легко делать рефакторинги.
+\end{itemize}
+\end{frame}\begin{frame}{Приходите к нам!}
+
+\begin{itemize}
+\item
+  Возможен internship (летняя практика) для талантливых студентов.
+\item
+  Есть вакансии для Haskell-программистов и скриптеров.
+\item
+  Знание Haskell желательно, но не обязательно, опыт с F\# подходит.
+\end{itemize}
+\end{frame}\begin{frame}{Задачи}
+
+Несколько простых задач.
+
+\begin{enumerate}[1.]
+\item
+  Реализовать катаморфизм на синтаксическом дереве, который возвращает
+  множество переменных, использованных в выражении.
+\item
+  Разработать алгебраический тип и свёртки для следующих задач.
+
+  2.1. У нас есть дерево документа, к примеру этой презентации.
+  Элементами дерева могут быть:
+
+  \begin{itemize}
+  \item
+    параграф
+  \item
+    картинка
+  \item
+    ссылка
+  \item
+    текст
+  \end{itemize}
+  В каждом параграфе может быть произвольное количество картинок,
+  подпараграфов, текста, ссылок и т.д.
+
+  Задача состоит в том, чтобы извлечь все ссылки для того, чтобы вывести
+  их в конце презентации. Напишите для этого катаморфизм.
+
+  2.2. Напишите катаморфизм, который удалит все картинки из документа.
+\end{enumerate}
+\end{frame}
+
+\begin{frame}{Контакты}
+
+\begin{itemize}
+\item Иван Веселов
+\item Ivan.Veselov@BarclaysCapital.com
+\item veselov@gmail.com
+\end{itemize}
+\end{frame}\begin{frame}{Полезные ссылки}
+
+\begin{enumerate}[1.]
+\item
+  ``Commercial Uses: Going functional on exotic trade'' -- статья про FPF
+
+  http://arbitrary.name/papers/fpf.pdf
+\item
+  Набор статей о катаморфизмах в F\# от одного из ведущих программистов
+  команды F\#
+
+  http://lorgonblog.wordpress.com/2008/04/05/catamorphisms-part-one/
+\item
+  ``Functional Programming with Bananas, Lenses, Envelopes and Barbed
+  Wire''
+
+  Одна из первых статей про морфизмы в контексте программирования
+  (сложная)
+
+  http://citeseer.ist.psu.edu/viewdoc/summary?doi=10.1.1.41.125
+\end{enumerate}
+
+\end{frame}\begin{frame}{Спасибо за внимание!}
+  \begin{center}
+    Задавайте вопросы.
+  \end{center}
+\end{frame}
+
+\end{document}
