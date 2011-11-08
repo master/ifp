@@ -1,0 +1,99 @@
+\documentclass[a4paper,12pt,russian]{article}
+
+\usepackage[T2A]{fontenc}
+\usepackage[cp1251]{inputenc}
+\usepackage[russian]{babel}
+
+\usepackage{graphicx}
+\usepackage{amssymb,amsfonts,amsmath,cite,enumerate,mathtools,euscript}
+\usepackage{makecell}
+\usepackage{multirow}
+\usepackage{ulem}
+\usepackage{indentfirst}
+\usepackage{pscyr}
+\usepackage{textcomp}
+\usepackage{listings}
+\usepackage{epigraph}
+\usepackage{longtable,hhline}
+
+\DeclareMathOperator{\sign}{sign}
+
+\usepackage{geometry}
+\geometry{left=1cm}
+\geometry{right=1cm}
+\geometry{top=1cm}
+\geometry{bottom=2cm}
+
+\usepackage[usenames,dvipsnames]{color}
+\usepackage{mdwlist}
+\usepackage{cmap}
+\usepackage{hyperref}
+\usepackage{verbatim}
+
+\usepackage[usenames]{color}
+\usepackage{colortbl}
+
+\setcounter{tocdepth}{4}
+\clubpenalty=10000
+\setlength{\parskip}{0.5\baselineskip}
+
+\newcommand{\lam}{\ensuremath{\lambda}}
+\newcommand{\term}[1]{\textbf{#1}}
+\renewcommand{\emph}[1]{\textit{#1}}
+\newcommand{\itemhard}{\stepcounter{enumi}\item[\theenumi $^\ast$.]}
+\newcommand{\warpar}{\par\medskip}
+\newcommand{\bydef}{\ensuremath{\stackrel{\text{\upshape df}}{=}}}
+\newcommand{\Natural}{\mathbb N}
+\newcommand{\Real}{\mathbb R}
+\newcommand{\Complex}{\mathbb C}
+\DeclareMathOperator*{\argmin}{\arg\!\min}
+\DeclareMathOperator*{\argmax}{\arg\!\max}
+\newcommand{\<}{\langle}
+\renewcommand{\>}{\rangle}
+
+\newcommand{\startmbout}{\color{BrickRed}}
+\newcommand{\finishmbout}{\color{black}\upshape}
+\newenvironment{mbout}{\startmbout}{\finishmbout}
+\newenvironment{xcode}{\begin{quote}\ttfamily\footnotesize}{\end{quote}\par}
+\newenvironment{xcomment}{\par\begin{longtable}{ \mid p{0.95\textwidth}}}{\end{longtable}\par}
+
+\begin{document}
+\lstset{ %
+	backgroundcolor=\color{white},  % choose the background color. You must add \usepackage{color}
+	showspaces=false,               % show spaces adding particular underscores
+	showstringspaces=false,         % underline spaces within strings
+	showtabs=false,                 % show tabs within strings adding particular underscores	
+	tabsize=4,              % sets default tabsize to 4 spaces
+	captionpos=b,                   % sets the caption-position to bottom
+	breaklines=true,        % sets automatic line breaking
+	breakatwhitespace=false,    % sets if automatic breaks should only happen at whitespace
+	escapeinside={\%}{)},          % if you want to add a comment within your code
+	basicstyle=\ttfamily\footnotesize,
+	extendedchars=true,
+	xleftmargin=40pt,
+	mathescape=true,
+	commentstyle=\itshape\color{ForestGreen},
+	keywordstyle=\bfseries,
+	stringstyle=\itshape
+}
+\lstnewenvironment{cs}
+	{\lstset{language={[Sharp]C}}}
+	{}
+\lstnewenvironment{fsharp}
+	{\lstset{language={[Objective]Caml},
+		    morecomment=[l]//}}
+	{}
+\lstnewenvironment{haskell}
+	{\lstset{language=Haskell}}
+	{}
+\section*{Моноидальные вычисления в деревьях}
+
+\subsection*{Материалы по теме лекции}
+\begin{enumerate}
+\item \href{http://habrahabr.ru/blogs/algorithm/112394/}{<<Моноиды и их приложения: моноидальные вычисления в деревьях>>} -- основная компиляция автором всех идей, изложенных на лекции, в более подробном виде, с примерами кода.
+\item \href{http://fprog.ru/2010/issue6/dan-piponi-fast-incremental-regular-expression/}{Перевод} оригинальной статьи Дэна Пипони, описывающей концепцию на примере матчинга регулярных выражений для построения инкрементального лексера.
+\item \href{http://fprog.ru/2010/issue6/eugene-kirpichov-incremental-regular-expressions/}{Статья-реализация} идей из предыдущего пункта Евгения Кирпичева. В целях доступности изложения описывает некоторые моменты организации Rope и вычислений даже еще более подробно.
+\item \href{http://www.cs.ubc.ca/local/reading/proceedings/spe91-95/spe/vol25/issue12/spe986.pdf}{``Ropes: an Alternative to Strings''} -- основная статья 1995 года про структуру данных Rope.
+\end{enumerate}
+Еще несколько ссылок можно найти в списке <<для дальнейшего чтения>>, приложенном к статье по первой ссылке.
+\end{document}
