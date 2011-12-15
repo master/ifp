@@ -1,0 +1,231 @@
+\documentclass[a4paper,11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[russian]{babel}
+\usepackage[T1]{fontenc}
+\usepackage{amssymb,amsmath,graphicx,indentfirst}
+\usepackage{caption}
+\usepackage{color}
+\usepackage{listings}
+\usepackage{qtree}
+\usepackage[unicode]{hyperref}
+
+\setlength{\parskip}{1ex plus 0.5ex minus 0.2ex}
+\captionsetup[figure]{labelformat=empty}
+\captionsetup[figure]{justification=centering}
+\lstset{keywordstyle=\color{blue}\bfseries, basicstyle=\footnotesize}
+\lstset{breaklines=true, breakatwhitespace=true}
+\lstset{extendedchars=false, language=Caml, defaultdialect=[Objective]Caml}
+
+\author{Олег Смирнов, Александр Полозов \\
+\texttt{oleg.smirnov@gmail.com}, \texttt{polozov.alex@gmail.com}}
+\date{16 декабря 2011 г.}
+\title{Введение в функциональное программирование -- Экзамен. Первый семестр}
+\begin{document}
+
+\subsection*{Рекурсия и итерация. Хвостовая рекурсия}
+\begin{enumerate}
+\item Напишите итеративную версию бинарного поиска в отсортированном массиве.
+  Функция должна принимать четыре аргумента:
+  \begin{itemize}
+  \item искомый элемент
+  \item минимальный индекс массива
+  \item максимальный индекс массива
+  \item функцию-предикат, которая проверяет, находится ли искомый элемент по
+    заданному индексу: $isFound~:~int~\rightarrow~int~\rightarrow~bool$
+  \end{itemize}
+
+\item Напишите итеративную версию бинарного алгоритма Евклида для поиска
+  наибольшего общего делителя (GCD) двух чисел:
+  \begin{enumerate}
+  \item $gcd(0, n) = n$; $gcd(m, 0) = m$; $gcd(m, m) = m$
+  \item Если $m$, $n$ чётные, то $gcd(m, n) = 2*gcd(m/2, n/2)$
+  \item Если $m$ чётное, $n$ нечётное, то $gcd(m, n) = gcd(m/2, n)$
+  \item Если $n$ чётное, $m$ нечётное, то $gcd(m, n) = gcd(m, n/2)$
+  \item Если $m$, $n$ нечётные и $n > m$, то $gcd(m, n) = gcd((n - m)/2, m)$
+  \item Если $m$, $n$ нечётные и $n < m$, то $gcd(m, n) = gcd((m - n)/2, n)$
+  \end{enumerate}
+
+\item TODO: Вопрос 3
+\end{enumerate}
+
+\subsection*{Функции высших порядков. Замыкания}
+
+TODO: 3-5 вопросов
+
+\subsection*{Списочные комбинаторы}
+\begin{enumerate}
+\item Реализуйте функцию 
+  $zip3~:~'\!a~list~\rightarrow~'\!b~list~\rightarrow~'\!c~list~\rightarrow
+  ('\!a*'\!b*'\!c)~list$,
+  которая превращает три списка одинаковой длины в один список кортежей-троек:
+  \begin{lstlisting}
+    zip3 [1; -1; 0] [2; -2; 0] [3; -3; 0];;
+    [(1, 2, 3); (-1, -2, -3); (0, 0, 0)]
+  \end{lstlisting}
+  \emph{Примечание:} если можно, реализуйте сразу итеративно.
+
+\item Реализуйте функцию $mapi~:~(int~\rightarrow~'\!a~\rightarrow
+  '\!b)~\rightarrow~'\!a~list~\rightarrow~'\!b~list$, которая преобразует один
+  список в другой список с помощью указанной функции. В качестве первого
+  аргумента функции передаётся номер текущего обрабатываемого элемента:
+  \begin{lstlisting}
+    mapi (fun i x -> (i, x)) [1; 2; 3];;
+    [(0, 1); (1, 2); (2, 3)]
+  \end{lstlisting}
+  \emph{Примечание:} если можно, реализуйте сразу итеративно.
+
+\item Реализуйте функцию
+  $exists2~:~('\!a~\rightarrow~'\!b~\rightarrow~bool)~\rightarrow~'\!a~list~
+  \rightarrow~'\!b~list~\rightarrow~bool$,
+  которая принимает функцию-предикат от двух аргументов, два списка элементов
+  и проверяет, удовлетворяет ли любая пара из элементов данному предикату:
+  \begin{lstlisting}
+    exists2 (fun a b -> a = b) [1; 2; 3] [3; 2; 1];;
+    true
+    exists2 (fun a b -> a = b) [1; 1; 1] [0; 0; 0];;
+    false
+  \end{lstlisting}
+  \emph{Примечание:} если можно, реализуйте сразу итеративно.
+
+\item Реализуйте функцию $count~:~('\!a~\rightarrow~bool)~
+  \rightarrow~'\!a~list~\rightarrow~int$, которая принимает функцию-предикат 
+  и список элементов, и возвращает число элементов, удовлетворяющих данному
+  предикату:
+  \begin{lstlisting}
+    count (fun x -> x > 0) [-1; 0; 1; 1; 1];;
+    3
+  \end{lstlisting}
+  \emph{Примечание:} если можно, реализуйте сразу итеративно.
+
+\item Реализуйте функцию $unzip~:~('\!a~*~'\!b)~list~\rightarrow~
+  '\!a~list~*~'\!b~list$, которая принимает список пар элементов и возвращает
+  пару из двух списков:
+  \begin{lstlisting}
+    unzip [(1,2); (3,4)];;
+    ([1; 3], [2; 4])
+  \end{lstlisting}
+  \emph{Примечание:} если можно, реализуйте сразу итеративно.
+\end{enumerate}
+
+\subsection*{Алгебраические типы данных}
+\begin{enumerate}
+\item Пусть задан следующий алгебраический тип данных, описывающий
+  арифметические выражения:
+  \begin{lstlisting}
+    type Expr = 
+    | Plus of Expr*Expr
+    | Minus of Expr*Expr
+    | Var of string
+    | Const of int
+  \end{lstlisting}
+  Напишите функцию $prettyPrint~:~Expr~\rightarrow~string$, которая приводит 
+  выражение к ``читабельному'' виду. Функция должна расставлять скобки по мере
+  необходимости. Пример работы:
+  \begin{lstlisting}
+    prettyPrint (Plus (Const 5) (Minus (Const 7) (Const 8)));;
+    "(3+(7-8))"
+    prettyPrint (Const 17);;
+    "17"
+  \end{lstlisting}
+
+\item Пусть задан следующий алгебраический тип данных, описывающий выражения 
+  логики высказываний:
+  \begin{lstlisting}
+    type Prop =
+    | True
+    | Not of Prop
+    | And of Prop*Prop
+    | Or of Prop*Prop
+    | Var of string
+  \end{lstlisting}
+  Напишите функцию $prettyPrint~:~Prop~\rightarrow~string$, которая приводит 
+  выражение к ``читабельному'' виду. Функция должна расставлять скобки по мере
+  необходимости. Пример работы:
+  \begin{lstlisting}
+    prettyPrint (Or (Var(``B''), Not(Var(``B''))));;
+    "(B||~B)"
+    prettyPrint (And (True, True));;
+    "(True&&True)"
+  \end{lstlisting}
+
+\item Пусть задан следующий алгебраический тип данных, описывающий
+  арифметические выражения:
+  \begin{lstlisting}
+    type Expr = 
+    | Plus of Expr*Expr
+    | Times of Expr*Expr
+    | Var of string
+    | Const of int
+  \end{lstlisting}
+  Напишите функцию $polishPrint~:~Expr~\rightarrow~string$, которая выводит
+  выражение в обратной польской нотации. Т.е. в таком виде, когда операнды
+  расположены перед знаками операций. Пример работы:
+  \begin{lstlisting}
+    polishPrint (Plus(Times(Plus(Const(1), Const(2)), Const(4)), Const(3)));;
+    "1 2 + 4 * 3 +"
+  \end{lstlisting}
+\end{enumerate}
+
+\subsection*{Обобщение свёртки на АТД. Катаморфизмы}
+\begin{enumerate}
+\item Пусть задан алгебраический тип данных $Prop$, описывающий выражения логики
+  высказываний. Тип данных включает поддержку констант, переменных, а также
+  операций конъюнкции, дизъюнкции и отрицания.
+  \begin{enumerate}
+  \item Напишите тип данных для ``контекста свёртки''. Контекстом называется
+    такой тип данных, где рекурсивные вхождения исходного типа ($Prop$ в данном
+    примере) заменены на некоторый параметр $'\!a$ -- вычисленные значения
+    предыдущих свёрток:
+    \begin{lstlisting}
+      type 'a propContext =
+      | ...
+    \end{lstlisting}
+  \item Напишите нерекурсивную функцию-вычислитель для выражения с 
+    использованием контекста: $eval~:~bool~propContext~\rightarrow~bool$.
+  \end{enumerate}
+
+\item Пусть задан алгебраический тип данных $XML$, описывающий произвольный 
+  XML-документ в виде $N$-арного дерева. Тип данных включает поддержку 
+  элементов (тэгов), атрибутов и содержимого для тэгов. Пример документа:
+  \begin{lstlisting}[language=XML]
+    <item>
+      <child attr="1"/>
+      <child attr="2">Hi!</child>
+      <item>
+        <child attr="3" another_attr="text"/>
+      </item>
+    </item>
+  \end{lstlisting}
+  \begin{enumerate}
+  \item Напишите тип данных для ``контекста свёртки''. Контекстом называется
+    такой тип данных, где рекурсивные вхождения исходного типа заменены на
+    некоторый параметр $'\!a$ -- вычисленные значения предыдущих свёрток:
+    \begin{lstlisting}
+      type 'a xmlContext =
+      | ...
+    \end{lstlisting}
+  \item Напишите нерекурсивную функцию, которая преобразует XML-документ
+    в текстовый вид, удобный для чтения: $prettyPrint~:~string~xmlContext~
+    \rightarrow~string$ (см. пример выше).
+  \end{enumerate}
+\end{enumerate}
+
+\subsection*{Моноидальные вычисления в деревьях}
+\begin{enumerate}
+\item Задача 1
+\item Задача 2
+\end{enumerate}
+
+\subsection*{Сканирующие пробеги, сегментированные пробеги}
+\begin{enumerate}
+\item Задача 1
+\item Задача 2
+\end{enumerate}
+
+\subsection*{Списочные гомоморфизмы и технология MapReduce}
+\begin{enumerate}
+\item Reverse Web-Link Graph
+\item Inverted Index
+\end{enumerate}
+
+\end{document}
