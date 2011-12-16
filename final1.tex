@@ -247,7 +247,7 @@
 
 \section*{Билет \No 5}
 \begin{enumerate}
-\item \textbf{Функции высших порядков. Замыкания (2 балла).}\\
+\item \textbf{Функции высших порядков. Замыкания (3 балла).}\\
   Допустим, F\# позволяет присваивать значения переменным с помощью
   Pascal-синтаксиса (\texttt{x := 5}). Используя замыкания, реализуйте
   функции $makeWeighter: (int \to bool) \to \;?$. $makeWeighter$ возвращает
@@ -259,7 +259,7 @@
   предикату. Функция $getAverage$ позволяет в любой момент времени получить
   среднее элементов в базе. Пример работы:
   \begin{fsharp}
-    let weighter = makeWeighter (fun x -> x %\%) 2 == 0)
+    let weighter = makeWeighter (fun x -> x % 2 == 0)
     addValue weighter 2
     addValue weighter 13
     addValue weighter 6
